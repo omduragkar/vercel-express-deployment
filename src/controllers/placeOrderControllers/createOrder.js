@@ -35,6 +35,19 @@ const Variation = require("../../models/Variation");
   }
 
 */
+
+const getComplimentaryItemCount=(order)=>{
+  let quantity=0;
+  order.complimentary.map((value)=>{
+    if(value.isComplimentary)
+    {
+      quantity +=1;
+    }
+  })
+  return quantity;
+}
+
+
 const createOrder = async (req, res) => {
   const { restaurantId, order, billing = false, orderType, couponCode, isCouponClaimed, specialInstruction, tableId, oldOrderId, timeCreated} = req.body;
   let rolesAllowed = [ROLE.WAITER, ROLE.CAPTAIN, ROLE.OWNER]
@@ -42,6 +55,7 @@ const createOrder = async (req, res) => {
   // const { _id, role } = req.userDetails
   const userDetails = req.userDetails
   let resultRole = rolesAllowed.includes(userDetails?.role)
+
   try {
     if (resultRole) {
       let findingMenuIds = await order.map(ors => ors.menuId);
@@ -55,6 +69,7 @@ const createOrder = async (req, res) => {
       let variationPrice = 0;
       let newmenuwithTotal = [];
       for (let i = 0; i < order.length; i++) {
+        
         let menuName = await menuFind.find(orde => orde._id == order[i].menuId);
         if(order[i]?.item?.selected){
           await Promise.all(order[i]?.item?.selected?.map(async selectedVAR => {
@@ -70,6 +85,24 @@ const createOrder = async (req, res) => {
           }))
         }
         if (menuName) {
+          if(order[i].isComplimentary)
+          {
+            let finalquantity=order[i].quantity-getComplimentaryItemCount(order[i]);
+            if (menuName.ignoreTaxes) {
+              totalexcludegstOrder += parseInt(menuName.price) * finalquantity;
+            } else if (menuName.itemTax != "0") {
+              totalexcludegstOrder += ((parseInt(menuName.price) * finalquantity) + percentCalculator(menuName.itemTax, parseInt(menuName.price) * finalquantity));
+              gstValue += percentCalculator(parseInt(menuName.itemTax), parseInt(parseInt(menuName.price) * finalquantity));
+            } else {
+              totalOrder += parseInt(menuName.price) * finalquantity;
+            }
+            totalItem += order[i].quantity;
+            order[i].cost = parseInt(menuName.price) * finalquantity;
+            order[i].variationPrice = 0;
+
+          }
+          else
+          {
           if (menuName.ignoreTaxes) {
             totalexcludegstOrder += parseInt(menuName.price) * order[i].quantity;
           } else if (menuName.itemTax != "0") {
@@ -81,8 +114,9 @@ const createOrder = async (req, res) => {
           totalItem += order[i].quantity;
           order[i].cost = parseInt(menuName.price) * order[i].quantity;
           order[i].variationPrice = variationPrice;
-
+          }
         }
+      
         newmenuwithTotal.push(order[i]);
       }
       const totalBeforeGST = totalOrder + variationPrice ;

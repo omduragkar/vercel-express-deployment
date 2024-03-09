@@ -27,6 +27,8 @@ const OrderSchema = new Schema(
           required: true
         },
         isEdited:{ type: Boolean, required: true, default:false },
+        isComplimentary:{ type: Boolean, required: true, default:false },
+        complimentary:[]
       }
     ],
     orderStatus: { type: String, required: true,enum:["CREATED","PREPARED","BILLING","CANCELLED", "COMPLETED"] },
