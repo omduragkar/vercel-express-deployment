@@ -1,0 +1,105 @@
+exports.createCategoriesByRestaurantId = async (req, res) => {
+  const { role, _id } = req.userDetails;
+  const { restaurantId } = req.query;
+  const { categoryName } = req.body;
+
+  try {
+    if (role === 'VENDOR') {
+      if (restaurantId && categoryName && categoryName.length) {
+        const result = await dbRestaurantServices.findRestaurant(restaurantId);
+
+        if (result) {
+          if (JSON.stringify(result.createdBy) == JSON.stringify(_id)) {
+            var count = 0;
+            categoryName.forEach(element => {
+              const category = new Category({
+                restaurantId,
+                categoryName: element,
+                // !If Crashes then add "menuList: []""
+                userId: _id
+              });
+              category
+                .save()
+                .then(item => {
+                  if (item) {
+                    count++;
+                    if (count == categoryName.length) {
+                      const result = dbRestaurantServices
+                        .findRestaurantCategories(restaurantId)
+                        .then(result => {
+                          if (result) {
+                            res.json(result);
+                          } else {
+                            res.json(result);
+                          }
+                        });
+                    }
+                  } else {
+                    count++;
+                    if (count == categoryName.length) {
+                      const result = dbRestaurantServices
+                        .findRestaurantCategories(restaurantId)
+                        .then(result => {
+                          if (result) {
+                            res.json(result);
+                          } else {
+                            res.json(result);
+                          }
+                        });
+                    }
+                  }
+                })
+                .catch(err => {
+                  console.log('unable to save to database');
+                  count++;
+                  if (count == categoryName.length) {
+                    const result = dbRestaurantServices
+                      .findRestaurantCategories(restaurantId)
+                      .then(result => {
+                        if (result) {
+                          res.json(result);
+                        } else {
+                          res.json(result);
+                        }
+                      });
+                  }
+                });
+            });
+          } else {
+            res.status(500).json({
+              status: false,
+              result,
+              message:
+                'something went wrong, db error, you may not the owner of this restaurant to perform categories creation operation'
+            });
+          }
+        } else {
+          res.status(500).json({
+            status: false,
+            result,
+            message:
+              'something went wrong, db error, while fetching restaurant details'
+          });
+        }
+      } else {
+        res.json({
+          status: false,
+          message: 'mandatory parameters are missing'
+        });
+      }
+    } else {
+      res.json({
+        status: false,
+        message:
+          'oppsss.!!! you cannot create a categories, you are not a vendor role'
+      });
+    }
+  } catch (err) {
+console.log(err)
+    res.json({
+      status: false,
+      message: 'something went wrong, please check request body parameters; ',
+      err: err
+    });
+  }
+};
