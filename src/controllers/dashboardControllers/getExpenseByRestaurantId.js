@@ -12,7 +12,7 @@ const getExpenseByRestaurantId = async (req, res) => {
         return response(res, 200, true,"Fetched all expenses Successfully", {expenses})
     }
     else{
-        return response(res, 200, true,"Expenses not found",null)
+        return response(res, 200, false,"Expenses not found",null)
     }
   }
   catch(error)

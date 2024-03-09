@@ -7,19 +7,41 @@ const getOrderHistoryForRestaurant = async (req, res) => {
   try {
     // console.log(new Date(new Date(startDate).setUTCHours(0, 0, 0, 0)), startDate);
     // console.log(new Date(endDate));
-    var totalPages = await order.countDocuments({
-      restaurantId,
-      $and: [{ createdAt: { $gte:new Date(new Date(startDate).setUTCHours(0, 0, 0, 0)) } }, { createdAt: { $lte: new Date(endDate) } }]
-    });
-    // console.log(totalPages)
-    let result = await order.find({
-      $and: [{restaurantId},{ createdAt: { $gte: new Date(new Date(startDate).setUTCHours(0, 0, 0, 0)) } }, { createdAt: { $lte: new Date(endDate) } }]
-    })
-    .populate("order.menuId table createdUser")
-    // .sort({ createdAt: -1 })
-    .skip((parseInt(pageNumber) - 1) * parseInt(pageSize))
-    .limit(parseInt(pageSize));
     // console.log(result)
+    let totalPages = 0
+    let result = []
+    if(startDate == endDate){
+      totalPages = await order.countDocuments({
+        restaurantId,
+        $and: [{ createdAt: { $gte:new Date(new Date(startDate).setUTCHours(0, 0, 0, 0)) } }, { createdAt: { $lt: new Date(endDate) } }]
+      });
+
+      result = await order.find({
+        restaurantId,
+        createdAt: {
+          $gte: new Date(new Date(startDate).setUTCHours(0, 0, 0, 0)),
+          $lt: new Date(new Date(endDate).setUTCHours(24, 0, 0, 0))
+        }
+      }).populate("order.menuId table createdUser")
+      .sort({ createdAt: -1 })
+      .skip((parseInt(pageNumber) - 1) * parseInt(pageSize))
+      .limit(parseInt(pageSize));
+    }
+    else{
+      totalPages = await order.countDocuments({
+        restaurantId,
+        $and: [{ createdAt: { $gte:new Date(new Date(startDate).setUTCHours(0, 0, 0, 0)) } }, { createdAt: { $lte: new Date(endDate) } }]
+      });
+      // console.log(totalPages)
+      result = await order.find({
+        $and: [{restaurantId},{ createdAt: { $gte: new Date(new Date(startDate).setUTCHours(0, 0, 0, 0)) } }, { createdAt: { $lte: new Date(endDate) } }]
+      })
+      .populate("order.menuId table createdUser")
+      .sort({ createdAt: -1 })
+      .skip((parseInt(pageNumber) - 1) * parseInt(pageSize))
+      .limit(parseInt(pageSize));
+    }
+    
     result = await result.reverse();
     if (result && result.length > 0) {
       return response(res, 200, true, 'Orders are found', {

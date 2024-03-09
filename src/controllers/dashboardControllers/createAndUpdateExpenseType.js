@@ -12,6 +12,9 @@ const createAndUpdateExpenseType = async (req, res) => {
         {
             return response(res, 200, true, "Expense Type updated Successfully", {updatedExpenseType});
         }
+        else{
+          return response(res, 200, false, "Expense Type  not updated Successfully", null);
+        }
       }
       else{
         const createExpenseType=new ExpenseType({
@@ -21,7 +24,7 @@ const createAndUpdateExpenseType = async (req, res) => {
         const createdExpenseType=await createExpenseType.save();
         if(createdExpenseType)
         {
-            return response(res, 200, true, "Expense Type create Successfully", {createdExpenseType});
+            return response(res, 200, true, "Expense Type create Successfully", {createExpenseType});
         }
         else{
             return response(res, 200, false, "Expense Type cannot created", null)

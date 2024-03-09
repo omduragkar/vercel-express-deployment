@@ -77,7 +77,10 @@ const OrderSchema = new Schema(
     customer:{
       type: Schema.ObjectId, ref: 'Customer'
         
-    }
+    }, 
+    timeCreated:{
+      type: Number,
+    },
   },
   { timestamps: true }
 )

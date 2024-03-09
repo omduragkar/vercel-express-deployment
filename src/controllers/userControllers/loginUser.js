@@ -4,17 +4,11 @@ const User = require('../../models/user')
 const response = require('../../utils/response')
 
 const loginUser = async (req, res) => {
-    console.log({
-        req:req.body
-    })
     const { mobileNumber, pin} = req.body;
   try {
     if(mobileNumber && pin){
         let findUser = await User.findOne({
             mobileNumber
-        })
-        console.log({
-            findUser
         })
         if(findUser){
             

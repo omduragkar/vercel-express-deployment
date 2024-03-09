@@ -2,6 +2,7 @@ const { ROLE } = require("../../constants/role");
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 const response = require("../../utils/response");
+const {PAYMENTTYPE}=require("../../constants/paymentType")
 const order = require("../../models/order");
 const Table = require("../../models/Table");
 const updateOrder = async (req, res) => {
@@ -89,18 +90,35 @@ const updateOrder = async (req, res) => {
     // }
     let rolesAllowed = [ROLE.WAITER, ROLE.CAPTAIN, ROLE.OWNER]
     let resultRole = rolesAllowed.includes(role)
+    var orderFind;
     try{
       if(resultRole)
       {
-        let orderFind = await order.findByIdAndUpdate(orderId, {
-          paymentStatus:true,
-          paymentDetails,
-          isCouponClaimed:isCouponClaimed,
-          couponCode:couponCode,
-          orderStatus:"COMPLETED"
-        },{
-          new:true
-        });
+        if(paymentDetails?.paidVia==PAYMENTTYPE.SPLITPAYMENT)
+        {
+          orderFind = await order.findByIdAndUpdate(orderId, {
+            paymentStatus:true,
+            paymentDetails,
+            isCouponClaimed:isCouponClaimed,
+            couponCode:couponCode,
+            orderStatus:"COMPLETED"
+          },{
+            new:true
+          });
+          console.log(orderFind.paymentDetails)
+        }
+        else{
+          orderFind = await order.findByIdAndUpdate(orderId, {
+            paymentStatus:true,
+            paymentDetails,
+            isCouponClaimed:isCouponClaimed,
+            couponCode:couponCode,
+            orderStatus:"COMPLETED"
+          },{
+            new:true
+          });
+        }
+        
         // console.log(orderFind);
         if(orderFind){
           let tableUpdate = await Table.findOneAndUpdate({_id:tableId},{

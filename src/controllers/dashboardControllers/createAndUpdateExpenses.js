@@ -2,15 +2,12 @@ const Expenses = require('../../models/expense')
 const response = require('../../utils/response')
 
 const createAndUpdateExpenses = async (req, res) => {
-    const {expenseId,restaurantId,expenseType,amount,date,specialInstruction,edit=false} = req.body 
+    const {expenseId,restaurantId,expenseType,amount,date,specialInstruction,edit=false,assigneeId} = req.body 
     const { _id } = req.userDetails
     try{
       if(edit)
       {
-        const findExpense=await Expenses.findById(expenseId);
-        if(findExpense.createdBy==_id)
-        {
-          const updateExpense=await Expenses.findByIdAndUpdate(expenseId,{expenseType,amount,date,specialInstruction},{new:true});
+        const updateExpense=await Expenses.findByIdAndUpdate(expenseId,{expenseType,amount,date,specialInstruction},{new:true});
           if(updateExpense)
           {
             return response(res, 200, true, 'Expense updated successfully', { updateExpense })
@@ -18,26 +15,22 @@ const createAndUpdateExpenses = async (req, res) => {
           else{
             return response(res, 200, false, 'Expense not found', null)
           }
-        }
-        else
-        {
-          return response(res, 200, false, 'Expense cannot be not updated,unauthorized', null)
-        }
       }
       else{
 
         const createExpense = new Expenses({
-          assigneeId:_id,
+          createdBy:_id,
           restaurantId,
           expenseType,
           amount,
           date,
-          specialInstruction
+          specialInstruction,
+          assigneeId
         })
         const createExpenses = await createExpense.save();
         if(createExpenses)
         {
-          return response(res, 200, true, 'Expense created successfully', { createExpenses })
+          return response(res, 200, true, 'Expense created successfully', { createExpense })
         }
         else
         {

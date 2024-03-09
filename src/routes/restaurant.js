@@ -14,6 +14,8 @@ const deleteExpenses=require("../controllers/dashboardControllers/deleteExpenses
 const createAndUpdateExpenseType=require("../controllers/dashboardControllers/createAndUpdateExpenseType")
 const deleteExpenseType=require("../controllers/dashboardControllers/deleteExpenseType")
 const getExpenseByRestaurantId=require("../controllers/dashboardControllers/getExpenseByRestaurantId")
+const getExpenseTypeByRestaurantId=require("../controllers/dashboardControllers/getExpenseTypeByRestaurantId")
+const getAllExpensesByRestaurantId=require("../controllers/dashboardControllers/getAllExpensesByRestaurantId")
 
 const router = express.Router()
 
@@ -30,4 +32,6 @@ router.post('/deleteExpense', protect, deleteExpenses);
 router.post('/createAndUpdateExpenseType', protect, createAndUpdateExpenseType);
 router.post('/deleteExpenseType', protect, deleteExpenseType);
 router.get('/getExpenseByRestaurantId', protect, getExpenseByRestaurantId)
+router.get('/getExpenseTypeByRestaurantId', protect, getExpenseTypeByRestaurantId)
+router.get('/getAllExpensesByRestaurantId', protect, getAllExpensesByRestaurantId)
 module.exports = router

@@ -36,8 +36,9 @@ const Variation = require("../../models/Variation");
 
 */
 const createOrder = async (req, res) => {
-  const { restaurantId, order, billing = false, orderType, couponCode, isCouponClaimed, specialInstruction, tableId, oldOrderId } = req.body
+  const { restaurantId, order, billing = false, orderType, couponCode, isCouponClaimed, specialInstruction, tableId, oldOrderId, timeCreated} = req.body;
   let rolesAllowed = [ROLE.WAITER, ROLE.CAPTAIN, ROLE.OWNER]
+  console.log(`The order creation time is ${timeCreated}`)
   // const { _id, role } = req.userDetails
   const userDetails = req.userDetails
   let resultRole = rolesAllowed.includes(userDetails?.role)
@@ -60,8 +61,8 @@ const createOrder = async (req, res) => {
             await Promise.all(selectedVAR.variations.map(async selu => {
               let variationforMenu = await Variation.findById(selu._id);
               let newFindingMenu = await variationforMenu.variationOptions.find(elm => elm._id == selu.selected);
-              console.log({ newFindingMenu, price: Number(newFindingMenu?.price) });
-              variationPrice += Number(newFindingMenu?.price)
+              console.log({ newFindingMenu, price: Number(!!newFindingMenu?.price ? newFindingMenu?.price: "0") });
+              variationPrice += Number(!!newFindingMenu?.price ? newFindingMenu?.price: "0")
               console.log({ variationPrice });
               return selu;
             }))
@@ -149,7 +150,8 @@ const createOrder = async (req, res) => {
             orderType,
             couponCode,
             isCouponClaimed,
-            specialInstruction
+            specialInstruction,
+            timeCreated: timeCreated, // Set the 'timeCreated' field
           })
 
       }
@@ -159,11 +161,10 @@ const createOrder = async (req, res) => {
         });
         if(tableOccupy){
           if(oldOrderId){
-            response(res, 200, true, "Order Updated Successfully", {tableStatus:tableOccupy, orderStatus:status, billing});
+            response(res, 200, true, "Order Updated Successfully", {tableStatus:tableOccupy, orderStatus:status, billing, timeCreated});
 
           }else{
-
-            response(res, 200, true, "Order Created Successfully", {tableStatus:tableOccupy, orderStatus:status, billing});
+            response(res, 200, true, "Order Created Successfully", {tableStatus:tableOccupy, orderStatus:status, billing, timeCreated});
           }
         }else{
 

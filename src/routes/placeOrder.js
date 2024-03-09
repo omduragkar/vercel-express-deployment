@@ -13,6 +13,8 @@ const { swapTable } = require('../controllers/tablecontroller/swapTable')
 const applyDiscount = require('../controllers/placeOrderControllers/applyDiscount')
 const getOrderDiscount = require('../controllers/placeOrderControllers/getOrderDiscount')
 const topHistory=require("../controllers/placeOrderControllers/topHistory")
+const uploadUserInfo = require("../controllers/placeOrderControllers/uploadUserInfo");
+const checkConsumerExist = require("../controllers/placeOrderControllers/checkConsumerExist");
 // const authorize = require('../middleware/check-auth').Authenticate
 // const { AuthenticateAdmin } = require('../middleware/checkAdminAuth')
 
@@ -28,6 +30,8 @@ router.get('/getOrderDiscount', protect, getOrderDiscount);
 router.post('/transferTable', protect, swapTable);
 router.post("/applyDiscount", protect, applyDiscount);
 router.get("/topHistory", protect, topHistory);
+router.post("/uploadUserInfo", protect, uploadUserInfo);
+router.post("/checkConsumerExist", protect, checkConsumerExist);
 
 // router.get('/getAllOrdersByRestaurantId', authorize, placeOrderController.getAllOrdersByRestaurantId)
 // router.get('/paymentStatus', authorize, placeOrderController.paymentStatus)
